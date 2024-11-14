@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>Professores</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
+    </head>
+    
+    <body>
+        <h1>Gerenciamento de Professores</h1>
+        
+        <table>
+            <tr> <td>ID:</td> <td><input type="text" id="txtId"></td> </tr>
+            <tr> <td>Nome:</td> <td><input type="text" id="txtNome"></td> </tr>
+            <tr> <td>Matrícula:</td> <td><input type="text" id="txtMatricula"></td> </tr>
+            <tr> <td>Área:</td> <td><input type="text" id="txtArea"></td> </tr>
+            <tr><td></td><td>
+                <input type="button" value="Novo" onclick="novoProfessor()" id="btnNovo">
+                <input type="button" value="Salvar" onclick="salvarProfessor()" id="btnSalvar">
+                <input type="button" value="Apagar" onclick="apagarProfessor()" id="btnApagar">
+                <input type="button" value="Cancelar" onclick="cancelarEdicao()" id="btnCancelar">
+                <input type="button" value="Logout" onclick="logout()" id="btnLogout">
+            </td></tr>             
+        </table>
+
+        <p style="font-weight:bold" id="paragrafoMensagem"></p>
+
+        <table>    
+            <tr> <th>ID</th> <th>Nome</th> <th>Matrícula</th> <th>Área</th> </tr>   
+                                           
+            <tbody id="corpoTabelaProfessores"> </tbody>
+        </table>
+        
+        
+        <script>
+        
+var token = localStorage.getItem('token');
+if (!token) {
+	window.location.replace("/html/login.html");
+}
+const corpoTabela = document.querySelector('#corpoTabelaProfessores');
+const paragrafoMensagem = document.querySelector('#paragrafoMensagem');
+const txtNome = document.querySelector('#txtNome');
+const txtMatricula = document.querySelector('#txtMatricula');
+const txtArea = document.querySelector('#txtArea');
+const txtId = document.querySelector('#txtId');
+const btnNovo = document.querySelector('#btnNovo');
+const btnSalvar = document.querySelector('#btnSalvar');
+const btnApagar = document.querySelector('#btnApagar');
+const btnCancelar = document.querySelector('#btnCancelar');
+var criandoNovoProfessor = false;
+inicializar();
+
+function inicializar() {
+    paragrafoMensagem.innerHTML =  'Pressione o botão Novo ou selecione um professor da lista:';
+    txtId.value = '';
+    txtNome.value = '';
+    txtArea.value = '';
+    txtMatricula.value = '';
+    txtId.disabled = true;
+    txtNome.disabled = true;
+    txtMatricula.disabled = true;
+    txtArea.disabled = true;
+    btnNovo.disabled = false;
+    btnSalvar.disabled = true;
+    btnApagar.disabled = true;
+    btnCancelar.disabled = true;
+    criandoNovoProfessor = false;
+    listarTodosProfessores();
+}
+
+async function listarTodosProfessores() {
+	fetch('/api/professores' ,{
+        method: 'GET',
+        headers: {'Authorization': 'Bearer ' + token }
+    })
+    .then(resposta => { if (!resposta.ok) throw Error(resposta.status); return resposta; } )
+    .then(resposta => resposta.json())
+    .then(json => preencherTabela(json))
+    .catch(function(error) {
+        paragrafoMensagem.innerHTML = "Erro ao listar professores (código " + error.message + ")";
+    });
+}
+
+function preencherTabela(professores) {
+	var linhasTabela = '';
+	var n = professores.length;
+	for (var i=0; i<n; i++) {
+		var p = professores[i];
+		linhasTabela += 
+			`<tr> ` + 
+            `<td><a href="javascript:void(0)" onclick="selecionarProfessor('${p.id}', '${p.nome}', '${p.matricula}', '${p.area}')">${p.id}</a></td>`
+             + ` <td>${p.nome}</td> <td>${p.matricula}</td> <td>${p.area}</td> </tr> \n`;
+	}
+	corpoTabela.innerHTML = linhasTabela;
+}
+
+function novoProfessor() {
+    paragrafoMensagem.innerHTML = 'Preencha os dados do novo professor...';
+    txtId.disabled = true;
+    txtNome.disabled = false;
+    txtMatricula.disabled = false;
+    txtArea.disabled = false;
+    btnNovo.disabled = true;
+    btnSalvar.disabled = false;
+    btnApagar.disabled = true;
+    btnCancelar.disabled = false;
+    criandoNovoProfessor = true;    
+}
+
+async function salvarProfessor() {
+    if (criandoNovoProfessor) {
+        fetch('/api/professores', {
+            method: 'POST',
+            body: JSON.stringify({
+                'nome': txtNome.value,
+                'matricula': txtMatricula.value,
+                'area': txtArea.value
+            }),
+            headers: {
+            	'Content-type': 'application/json',
+            	'Authorization': 'Bearer ' + token
+            }
+        })
+        .then(resposta => { if (!resposta.ok) throw Error(resposta.status); return resposta; } )
+        .then(resposta => resposta.json())
+        .then(json => inicializar())
+        .catch(function(error) {
+            paragrafoMensagem.innerHTML = "Erro ao criar professor (código " + error.message + ")";
+        });  
+    }
+    else {
+        fetch('/api/professores/' + txtId.value, {
+            method: 'PUT',
+            body: JSON.stringify({
+                'id': txtId.value,
+                'nome': txtNome.value,
+                'matricula': txtMatricula.value,
+                'area': txtArea.value
+            }),
+            headers: {
+            	'Content-type': 'application/json',
+            	'Authorization': 'Bearer ' + token
+            }
+        })
+        .then(resposta => { if (!resposta.ok) throw Error(resposta.status); return resposta; } )
+        .then(resposta => resposta.json())
+        .then(json => inicializar())
+        .catch(function(error) {
+            paragrafoMensagem.innerHTML = "Erro ao alterar professor (código " + error.message + ")";
+        });         
+    }  
+}
+
+function cancelarEdicao() {
+	inicializar();
+}
+
+function selecionarProfessor(id, nome, matricula, area) {
+    paragrafoMensagem.innerHTML = 'Altere e salve os dados do professor, ou então apague o registro do professor.'
+    txtId.value = id;
+    txtNome.value = nome;
+    txtMatricula.value = matricula;
+    txtArea.value = area;
+    txtId.disabled = true;
+    txtNome.disabled = false;
+    txtMatricula.disabled = false;
+    txtArea.disabled = false;
+    btnNovo.disabled = true;
+    btnSalvar.disabled = false;
+    btnApagar.disabled = false;
+    btnCancelar.disabled = false; 
+}
+
+async function apagarProfessor() {
+	fetch('/api/professores/' + txtId.value, {
+        method: 'DELETE',
+        headers: {'Authorization': 'Bearer ' + token }
+    })
+    .then(resposta => { if (!resposta.ok) throw Error(resposta.status); return resposta; } )
+    .then(resposta => inicializar())
+    .catch(function(error) {
+        paragrafoMensagem.innerHTML = "Erro ao apagar professor (código " + error.message + ")";
+    });
+}
+
+function logout() {
+	localStorage.removeItem('token');
+	window.location.replace("/html/login.html");
+}
+
+        </script>
+	</body>
+</html>	        

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Cadastro</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
+    </head>
+<body>
+  <h1>Cadastro de novo usuário</h1>
+  <div class="input">
+  	<table>
+    	<tr>
+    		<td><label for="username">user name:</label></td>
+    		<td><input id="username"></td>
+    	</tr>
+    	<tr>
+    		<td><label for="password">password:</label></td>
+    		<td><input type="password" id="password"></td>
+    	</tr>
+    	<tr><td></td><td><button onclick="cadastrar()">Cadastrar</button></td></tr>
+    </table>
+  </div>
+  <div id="message"></div>
+
+  <script>
+var messageElement = document.getElementById('message');
+var userElement = document.getElementById('username');
+var passwordElement = document.getElementById('password');
+
+async function cadastrar() {
+    fetch('/register', {
+        method: 'POST',
+        body: JSON.stringify({
+            'username': userElement.value,
+            'password': passwordElement.value
+        }),
+        headers: {
+        	'Content-type': 'application/json'
+        }
+    })
+    .then(resposta => { if (!resposta.ok) throw Error(resposta.status); return resposta; } )
+    .then(resposta => resposta.json())
+    .then(json => {
+    	if (json.username == userElement.value) {
+    		alert('Usuário criado com sucesso! Faça agora o login na aplicação...')
+    		window.location.replace("/html/login.html");
+    	}
+    	else {
+    		messageElement.innerHTML = "Erro ao criar novo usuário";
+    	}
+    })
+    .catch(function(error) {
+        messageElement.innerHTML = "Erro ao criar novo usuário (código " + error.message + ")";
+    }); 
+}
+  </script>
+</body>
+</html>

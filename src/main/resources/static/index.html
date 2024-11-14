@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Index</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
+    </head>
+<body>
+  <h1>Bem-vindo ao Gerenciamento de Professores!</h1>
+  <p>Aguarde enquanto verificamos se você já pode acessar os dados dos professores!</p>
+
+  <script>
+var token = localStorage.getItem('token');
+if (!token) {
+	window.location.replace("/html/login.html");
+}
+var url = "/hello"
+var xhr = new XMLHttpRequest();
+
+xhr.open('GET', url, true);
+xhr.setRequestHeader("Authorization", "Bearer " + token);
+xhr.addEventListener('load', function() {
+	if (this.responseText == 'hi') {
+		window.location.replace("/html/professores.html");
+	}
+	else {
+		window.location.replace("/html/login.html");
+	}
+});
+
+xhr.send(null);
+  </script>
+</body>
+</html>
