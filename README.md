@@ -1,6 +1,6 @@
 # Exemplo de aplicação web
 
-Esta é uma aplicação que preparei para servir de exemplo para meus alunos de Programação de Sistemas II e Prática Profissional em aDS. É uma aplicação de gerenciamento de dados de professores, com páginas de login e cadastro de novo usuário. Foi preparada para ser implantada utilizando o PostgreSQL como base de dados.
+Esta é uma aplicação que preparei para servir de exemplo para meus alunos de Programação de Sistemas II e Prática Profissional em aDS. É uma aplicação de gerenciamento de dados de professores, com páginas de login e cadastro de novo usuário. Esta branch foi preparada para ser implantada utilizando o H2 como base de dados.
 
 É um exemplo didático e, devido às simplificações para torná-lo mais fácil de entender, não possui todos os tratamentos necessários (principalmente na parte de segurança) para ser colocado em produção.
 
