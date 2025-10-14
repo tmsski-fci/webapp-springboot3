@@ -1,0 +1,37 @@
+# @name registerUser
+POST http://localhost:8080/register
+Content-Type: application/json
+
+{
+    "username": "admin1", 
+    "password": "098765"
+}
+###
+
+# @name login
+POST http://localhost:8080/authenticate
+Content-Type: application/json
+
+{
+    "username": "admin1", 
+    "password": "098765"
+}
+###
+
+@access_token = {{login.response.body.token}}
+
+# @name postProfessor
+POST http://localhost:8080/api/professores
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+    "nome": "Ana", 
+    "matricula": "111111", 
+    "area": "Medicina"
+}
+###
+
+# @name getProfessores
+GET http://localhost:8080/api/professores
+Authorization: Bearer {{access_token}}

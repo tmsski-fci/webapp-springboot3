@@ -1,0 +1,36 @@
+# @name registerUser
+POST http://localhost:8080/register
+Content-Type: application/json
+
+{
+    "username": "admin1", 
+    "password": "098765"
+}
+###
+
+# @name login
+POST http://localhost:8080/authenticate
+Content-Type: application/json
+
+{
+    "username": "admin1", 
+    "password": "098765"
+}
+###
+
+@access_token = {{login.response.body.token}}
+
+# @name postFaculdade
+POST http://localhost:8080/api/faculdades
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+    "nome": "FCI", 
+    "anoFundacao": "1970"
+}
+###
+
+# @name getFaculdades
+GET http://localhost:8080/api/faculdades
+Authorization: Bearer {{access_token}}
